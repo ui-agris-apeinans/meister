@@ -1,15 +1,35 @@
-.challenge {}
+html {
+  background: #ebe7f4;
+}
 
-.challenge-create-person-button {}
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
 
-.challenge-persons {
-  margin-top: 10px;
+.challenge {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.challenge-create-person-button {
+  border: 3px solid #a3ecd4;
+  background: #e4ffff;
+  color: #335733;
+  font-size: 14px;
+  padding: 8px 22px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  font-size: 16px;
 }
 
 .challenge-person {
   height: 30px;
   display: flex;
   align-items: center;
+  margin: 10px 0 10px 0;
 }
 
 .challenge-person-id {
@@ -19,6 +39,19 @@
   text-align: right;
 }
 
-.challenge-person-name {}
+.challenge-person-name {
+  height: 28px;
+  padding: 0 12px;
+  margin: 0;
+  border: 2px solid #a3ecd4;
+  margin-right: 12px;
+}
 
-.challenge-person-save-name-button {}
+.challenge-person-save-name-button {
+  height: 28px;
+  border: 2px solid #a3ecd4;
+  background: #e4ffff;
+  color: #335733;
+  padding: 0 12px;
+  cursor: pointer;
+}

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Persons from './utils/Persons';
 import Server from './Server';
 
-
 let id = 0;
 
 export default class Client extends Component {
@@ -11,13 +10,14 @@ export default class Client extends Component {
 
         this.state = {
             persons: new Persons(),
+            serverPersons: new Persons(),
         };
     }
 
     createPerson() {
         const person = {
             name: '',
-            id: --id,
+            id: id++,
         };
 
         this.setState(state => ({
@@ -32,12 +32,11 @@ export default class Client extends Component {
     }
 
     onClickSaveName(person) {
-        this.savePerson(person);
+        this.updatePerson(person);
     }
 
     onChangeName(person, event) {
         const name = event.target.value;
-
         this.setState(state => ({
             persons: state.persons.update({
                 ...person,
@@ -47,19 +46,42 @@ export default class Client extends Component {
     }
 
     savePerson(person) {
-        const isCreate = person.id < 0;
+        Server.post(person).then(this.onSaveSuccess);
+    }
 
-        const method = isCreate
-            ? 'post'
-            : 'patch';
+    updatePerson(person) {
+        // if person not yet saved in server, we will update the name in onSaveSuccess
+        const personInServer = this.state.serverPersons.state.find(currentPerson => currentPerson.id === person.id);
+        if (personInServer) {
+            Server.patch(person).then(this.onUpdateSuccess);
+        }
+    }
 
-        Server[method](person).then(this.onSaveSuccess);
+    onUpdateSuccess = person => {
+        const personInState = this.state.persons.state.find(currentPerson => currentPerson.id === person.id)
+        if (personInState.name === person.name) {
+            this.setState(state => ({
+                serverPersons: state.persons.update(person),
+                persons: state.persons.update(person),
+            }));
+        }
     }
 
     onSaveSuccess = person => {
-        this.setState(state => ({
-            persons: state.persons.upsert(person),
-        }));
+        const personInState = this.state.persons.state.find(currentPerson => currentPerson.id === person.id);
+        const personOutdated = this.state.persons.state.find(currentPerson => currentPerson.name !== person.name);
+        if (personOutdated) {
+            Server.patch(personInState);
+            this.setState(state => ({
+                serverPersons: state.persons.update(personInState),
+                persons: state.persons.update(personInState),
+            }));
+        } else {
+            this.setState(state => ({
+                serverPersons: state.persons.update(person),
+                persons: state.persons.update(person),
+            }));
+        }
     }
 
     renderPersons() {
@@ -94,6 +116,7 @@ export default class Client extends Component {
                 >
                     Create Person
                 </button>
+
                 <div className="challenge-persons">
                     {this.renderPersons()}
                 </div>
